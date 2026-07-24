@@ -116,3 +116,27 @@ Question 1 (no heralds allowed), so the hunt continues on four fronts:
 Structural notes from this iteration: for bipartite block+rest layers, all
 (m-1,1)-type classes are structurally dead; the observed cost-1.0 plateau at
 m=6 must come from richer class shapes (diagnosis pending).
+
+## Iteration 3 — pencil relaxation and seeded searches
+
+Imported structure (suggested by the Jacobian-conjecture counterexample
+discussion): determinantal/Pfaffian representations of Fermat hypersurfaces.
+Any mono-edge solution must satisfy Haf(Σ t_a A_a) ≡ Σ t_a^{n/2} (`pencil.py`).
+
+Results:
+- The pencil identity is numerically solvable at (6,2), (6,3) and (10,4)
+  (costs ~1e-16..1e-19, bounded weights, max|A| ≈ 1.4 at (10,4)). Since
+  class-level (6,3) mono-edge is SAT-impossible while its pencil is solvable,
+  the entire difficulty of Question 1 lives in splitting coefficient sums into
+  individually vanishing coloring classes.
+- Class-level (10,4) campaigns with the fast scatter engine (`mono_fast.py`):
+  random starts plateau at loss 3.000 (three dead colors); **seeding from a
+  machine-precision pencil solution collapses to the same 3.000 attractor** —
+  the necessary-condition manifold is connected to the dead-color basin, not
+  to any solution.
+- Symmetry-constrained (8,4) (Z_8-equivariant, 58 orbit parameters): best
+  3.0485 over 38 restarts.
+
+Pattern across all experiments: (6,4) → 1.0, (8,4) sym → ~3.05, (10,4) → 3.0;
+every relaxation is feasible, every exact class-level formulation loses d−1
+colors. This is precisely what the Krenn–Gu conjecture predicts.
