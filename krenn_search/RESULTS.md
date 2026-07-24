@@ -94,3 +94,25 @@ Cancellation is purely within a layer. Corollaries:
     python3 search.py 6 4 50         # full search (n=6, d=4)
     python3 campaign.py 6 3 1 0.2 t  # pseudo-solution family shows up quickly
     python3 bip_scan.py 6 4 20 1     # bipartite block-layer scan (n=12, d=4)
+
+## Iteration 2 — Question-1-focused searches (in progress)
+
+The k-monochromatic d=4 solution (SOLUTION_d4_kmono.md) does not satisfy
+Question 1 (no heralds allowed), so the hunt continues on four fronts:
+
+1. **Symmetry-constrained search** (`sym_search.py`): impose invariance under
+   the joint rotation (v -> v+1 mod n, c -> c+1 mod d) at (n,d) = (8,4).
+   All four mono classes become symmetry-equivalent, eliminating the
+   "dead color" attractor that traps unconstrained runs at loss 1.0.
+   58 orbit parameters instead of 448.
+2. **Structure annealing** (`anneal_mono.py`): simulated annealing over
+   mono-edge colored graphs at (10,4), minimizing missing-mono/single-PM-class
+   counts, with inner least-squares solves on cancellation-ready structures.
+3. **Full-space campaign** at (8,3) (`campaign.py`) — the smallest case not
+   covered by any published impossibility result at d=3.
+4. k-monochromatic (8,6,4) — would beat the Erhard graph in both k and d
+   (side quest; not a Question-1 counterexample).
+
+Structural notes from this iteration: for bipartite block+rest layers, all
+(m-1,1)-type classes are structurally dead; the observed cost-1.0 plateau at
+m=6 must come from richer class shapes (diagnosis pending).
