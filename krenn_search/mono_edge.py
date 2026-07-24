@@ -58,22 +58,32 @@ class MonoEdgeSystem:
             groups.setdefault(tuple(chi), []).append(M)
         self.groups = groups
         self.mono = [tuple([a] * n) for a in range(d)]
+        # vectorized structures: PM x edge incidence, class x PM membership
+        m = len(self.edges)
+        self.A = np.zeros((len(self.pms), m), dtype=bool)
+        for r, M in enumerate(self.pms):
+            for e in M:
+                self.A[r, self.eidx[e]] = True
+        self.class_list = list(self.groups)
+        pm_id = {M: r for r, M in enumerate(self.pms)}
+        self.S = np.zeros((len(self.class_list), len(self.pms)))
+        for ci, chi in enumerate(self.class_list):
+            for M in self.groups[chi]:
+                self.S[ci, pm_id[M]] = 1.0
+        self.tvec = np.array([1.0 if chi in self.mono else 0.0
+                              for chi in self.class_list], dtype=complex)
+        self.n_missing = sum(1 for c in self.mono if c not in self.groups)
 
     def realizes_all_colors(self):
         return all(c in self.groups for c in self.mono)
 
     def residuals(self, w):
         """w complex vector over edges -> residual per coloring class."""
-        res = []
-        for chi, Ms in self.groups.items():
-            s = sum(np.prod([w[self.eidx[e]] for e in M]) for M in Ms)
-            t = 1.0 if chi in self.mono else 0.0
-            res.append(s - t)
-        # missing mono colorings count as residual 1
-        for c in self.mono:
-            if c not in self.groups:
-                res.append(1.0 + 0j)
-        return np.array(res, dtype=complex)
+        prods = np.prod(np.where(self.A, w[None, :], 1.0), axis=1)
+        res = self.S @ prods - self.tvec
+        if self.n_missing:
+            res = np.concatenate([res, np.ones(self.n_missing, dtype=complex)])
+        return res
 
     def solve(self, restarts=30, seed=0, scale=1.0):
         rng = np.random.default_rng(seed)
